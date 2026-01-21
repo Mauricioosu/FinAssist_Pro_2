@@ -1,0 +1,55 @@
+# PYTHON
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# AMBIENTE VIRTUAL
+.venv/
+venv/
+ENV/
+
+# DADOS
+data/
+*.db
+*.sqlite3
+
+# ARQUIVOS DE LOG E CONFIGURAÇÃO LOCAL
+*.log
+.env
+.DS_Store
+
+# CHAINLIT
+.chainlit/
+chainlit.md
+# O chainlit.md pode ser versionado se for customizado, 
+# mas a pasta .chainlit geralmente guarda caches.
+
+# PYINSTALLER
+build/
+dist/
+*.spec
+
+# IDEs
+.vscode/
+.idea/
+
+# PEP8  
+.flake8

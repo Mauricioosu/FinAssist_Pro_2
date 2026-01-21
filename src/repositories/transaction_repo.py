@@ -3,6 +3,7 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from src.models.transaction import TransactionModel
 
+
 class TransactionRepository:
     def __init__(self, db: AsyncSession):
         self.db = db

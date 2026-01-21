@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.transaction_repo import TransactionRepository
 from src.repositories.goal_repo import GoalRepository
 
+
 class FinanceEngine:
     def __init__(self, session: AsyncSession):
         self.transaction_repo = TransactionRepository(session)
@@ -12,17 +13,16 @@ class FinanceEngine:
         Registra uma transação e retorna o novo saldo.
         A IA chama isso quando o usuário diz: "Gastei 50 em pizza".
         """
-        # 1. Registrar a transação
+        # Registrar a transação
         await self.transaction_repo.create(description, amount, category)
-        
-        # 2. Calcular impacto imediato (novo saldo)
+        # Calcular impacto imediato (novo saldo)
         new_balance = await self.transaction_repo.get_balance()
         return new_balance
 
     async def generate_dashboard_context(self) -> str:
         """
         Gera um relatório de texto pronto para ser injetado no Prompt da IA.
-        Isso evita que a IA tenha que ler wwwwwwwwwwwwwwwwwwwwwwwwwJSONs complexos.
+        Isso evita que a IA tenha que ler JSONs complexos.
         """
         # Busca dados em paralelo (ou sequencial rápido)
         balance = await self.transaction_repo.get_balance()
@@ -32,7 +32,6 @@ class FinanceEngine:
         # Monta o texto do Contexto
         text_lines = []
         text_lines.append(f"💰 SALDO ATUAL: R$ {balance:.2f}")
-        
         text_lines.append("\n📉 ÚLTIMAS MOVIMENTAÇÕES:")
         if not recent_tx:
             text_lines.append("- Nenhuma transação recente.")

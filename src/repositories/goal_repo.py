@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from src.models.goal import GoalModel
 
+
 class GoalRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -28,7 +29,6 @@ class GoalRepository:
         query = select(GoalModel).where(GoalModel.id == goal_id)
         result = await self.db.execute(query)
         goal = result.scalar_one_or_none()
-        
         if goal:
             goal.current_amount += amount_added
             # Verifica se atingiu a meta
