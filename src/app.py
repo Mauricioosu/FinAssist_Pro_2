@@ -2,13 +2,12 @@ import sys
 import os
 import json
 import chainlit as cl
-from src.core.database import get_db
-from src.ai.controller import AIController
-
-# Configuração do Path para importar módulos corretamente
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(root_dir)
+from src.core.database import get_db
+from src.ai.controller import AIController
+
 DATA_DIR = os.path.join(root_dir, "data")
 PROFILE_PATH = os.path.join(DATA_DIR, "perfil_investidor.json")
 
@@ -35,7 +34,7 @@ async def save_profile_name(nome):
 
 @cl.on_chat_start
 async def start():
-    # 1. Onboarding
+    # Onboarding
     nome_usuario = await load_profile_name()
     if not nome_usuario:
         await cl.Message(content="👋 Olá! Bem-vindo ao **FinAssist Pro 2**.\nSou seu mentor financeiro pessoal e 100% offline.").send()

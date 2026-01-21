@@ -1,5 +1,5 @@
 import httpx
-import json
+
 
 class OllamaProvider:
     def __init__(self, model="llama3:8b"):
@@ -12,7 +12,6 @@ class OllamaProvider:
         Configurado com temperatura baixa para evitar alucinações matemáticas.
         """
         prompt_completo = f"{system_prompt}\n\nUSER: {user_query}"
-        
         payload = {
             "model": self.model,
             "prompt": prompt_completo,
@@ -33,4 +32,3 @@ class OllamaProvider:
                     return f"Erro: Ollama retornou código {response.status_code}"
             except Exception as e:
                 return f"Erro de conexão: O Ollama está rodando? Detalhes: {e}"
-            

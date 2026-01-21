@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy.orm import DeclarativeBase
 
 # Define o caminho do banco na pasta 'data' na raiz do projeto
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # src/core
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 DB_PATH = os.path.join(DATA_DIR, "finassist_v2.db")
@@ -17,8 +17,8 @@ DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
 # Engine (Motor do Banco)
 engine = create_async_engine(
     DATABASE_URL,
-    echo=False, # Mude para True se quiser ver os SQLs no terminal (debug)
-    connect_args={"check_same_thread": False} # Necessário para SQLite
+    echo=False,
+    connect_args={"check_same_thread": False}
 )
 
 # Fábrica de Sessões
@@ -28,9 +28,11 @@ AsyncSessionLocal = async_sessionmaker(
     expire_on_commit=False
 )
 
+
 # Classe Base para os Modelos (Tabelas)
 class Base(DeclarativeBase):
     pass
+
 
 # Dependência para obter a sessão (Dependency Injection)
 async def get_db():
