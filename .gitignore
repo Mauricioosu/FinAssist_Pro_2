@@ -39,8 +39,6 @@ data/
 # CHAINLIT
 .chainlit/
 chainlit.md
-# O chainlit.md pode ser versionado se for customizado, 
-# mas a pasta .chainlit geralmente guarda caches.
 
 # PYINSTALLER
 build/
