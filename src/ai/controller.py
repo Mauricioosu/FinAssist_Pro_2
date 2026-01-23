@@ -1,6 +1,6 @@
-import json
 import re
 from sqlalchemy.ext.asyncio import AsyncSession
+from json_repair import repair_json
 from src.services.finance_engine import FinanceEngine
 from src.ai.provider import OllamaProvider
 from src.config import settings
@@ -14,20 +14,24 @@ class AIController:
 
     async def process_query(self, user_query: str) -> str:
         contexto_financeiro = await self.engine.generate_dashboard_context()
-        full_prompt = f"{self.system_prompt}\n\n### CONTEXTO FINANCEIRO ATUAL ###\n{contexto_financeiro}"
+        full_prompt = f"{self.system_prompt}\n\n### CONTEXTO FINANCEIRO ATUAL ###\n{contexto_financeiro}"        
         raw_response = await self.provider.generate(full_prompt, user_query)
         final_response = await self._handle_actions(raw_response)
         return final_response
 
     async def _handle_actions(self, response_text: str) -> str:
-        """Busca e executa blocos JSON delimitados por <<< >>>"""
-        # Nota: A lógica de parsing será o foco da próxima melhoria (Ação 3)
+        """
+        Busca e executa blocos JSON.
+        Agora usa json_repair para tolerar erros de sintaxe da IA.
+        """
         pattern = r"<<<(.*?)>>>"
         match = re.search(pattern, response_text, re.DOTALL)
         if match:
             try:
                 json_str = match.group(1)
-                data = json.loads(json_str)
+                # BLINDAGEM: Usa repair_json para corrigir vírgulas extras, aspas faltando, etc.
+                data = repair_json(json_str, return_objects=True)
+                # Remove o JSON técnico da resposta final para o usuário
                 clean_text = response_text.replace(match.group(0), "").strip()
                 if data.get("action") == "transaction":
                     novo_saldo = await self.engine.add_new_transaction(
@@ -44,5 +48,6 @@ class AIController:
                     )
                     return f"{clean_text}\n\n🎯 *Meta criada com sucesso!*"
             except Exception as e:
-                return f"{response_text}\n\n⚠️ *Erro ao processar ação automática: {str(e)}*"
+                # Se mesmo o repair falhar, avisa o usuário sem travar o app
+                return f"{response_text}\n\n⚠️ *Não consegui processar a ação. Erro: {str(e)}*"
         return response_text
