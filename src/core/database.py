@@ -14,7 +14,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 # URL de Conexão SQLite (Driver aiosqlite para async)
 DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
 
-# Engine (Motor do Banco)
+# Engine
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,
@@ -29,12 +29,12 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 
-# Classe Base para os Modelos (Tabelas)
+# Classe Base para os Modelos
 class Base(DeclarativeBase):
     pass
 
 
-# Dependência para obter a sessão (Dependency Injection)
+# Dependência para obter a sessão do banco
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session

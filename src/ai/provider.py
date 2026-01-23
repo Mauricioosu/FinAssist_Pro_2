@@ -1,15 +1,15 @@
 import httpx
+from src.config import settings
 
 
 class OllamaProvider:
-    def __init__(self, model="llama3:8b"):
-        self.model = model
-        self.api_url = "http://localhost:11434/api/generate"
+    def __init__(self):
+        self.model = settings.OLLAMA_MODEL
+        self.api_url = settings.OLLAMA_API_URL
 
     async def generate(self, system_prompt: str, user_query: str) -> str:
         """
         Envia o prompt para o modelo local e retorna o texto puro.
-        Configurado com temperatura baixa para evitar alucinações matemáticas.
         """
         prompt_completo = f"{system_prompt}\n\nUSER: {user_query}"
         payload = {
@@ -17,8 +17,8 @@ class OllamaProvider:
             "prompt": prompt_completo,
             "stream": False,
             "options": {
-                "temperature": 0.1,  # Muito baixa para ser preciso
-                "num_ctx": 4096      # Contexto maior para ler histórico
+                "temperature": settings.OLLAMA_TEMPERATURE,
+                "num_ctx": settings.OLLAMA_CONTEXT_WINDOW
             }
         }
 

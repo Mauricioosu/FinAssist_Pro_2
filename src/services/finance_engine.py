@@ -24,7 +24,7 @@ class FinanceEngine:
         Gera um relatório de texto pronto para ser injetado no Prompt da IA.
         Isso evita que a IA tenha que ler JSONs complexos.
         """
-        # Busca dados em paralelo (ou sequencial rápido)
+        # Busca dados em paralelo
         balance = await self.transaction_repo.get_balance()
         recent_tx = await self.transaction_repo.get_recent(limit=5)
         goals = await self.goal_repo.get_active_goals()
@@ -45,7 +45,6 @@ class FinanceEngine:
         if not goals:
             text_lines.append("- Nenhuma meta definida.")
         for g in goals:
-            # Evita divisão por zero
             if g.target_amount > 0:
                 progresso = (g.current_amount / g.target_amount) * 100
             else:

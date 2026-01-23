@@ -3,48 +3,25 @@ import re
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.services.finance_engine import FinanceEngine
 from src.ai.provider import OllamaProvider
+from src.config import settings
 
 
 class AIController:
     def __init__(self, session: AsyncSession):
         self.engine = FinanceEngine(session)
         self.provider = OllamaProvider()
-        # PROMPT DO SISTEMA
-        self.system_prompt = """
-        Você é o FinAssist Pro 2, um assistente financeiro pessoal e privado.
-        SEU OBJETIVO:
-        1. Analisar o CONTEXTO FINANCEIRO abaixo.
-        2. Responder dúvidas ou EXECUTAR AÇÕES (registros).
-
-        REGRAS CRÍTICAS:
-        - NÃO invente dados. Use apenas o que está no CONTEXTO.
-        - Se o usuário quiser REGISTRAR algo (gasto, ganho, meta), você NÃO deve apenas falar "ok".
-        - Você deve emitir um COMANDO JSON no final da resposta.
-
-        FORMATO DE COMANDO (JSON):
-        Para transações:
-        <<<{"action": "transaction", "desc": "Compra de X", "val": -50.00, "cat": "Lazer"}>>>
-        Para metas:
-        <<<{"action": "goal", "desc": "Viagem", "target": 5000.00, "deadline": "Dez/2026"}>>>
-
-        Exemplo de Resposta:
-        "Entendido! Registrei seu almoço."
-        <<<{"action": "transaction", "desc": "Almoço", "val": -35.00, "cat": "Alimentação"}>>>
-        """
+        self.system_prompt = settings.SYSTEM_PROMPT
 
     async def process_query(self, user_query: str) -> str:
-        # Obter o contexto atualizado do banco de dados
         contexto_financeiro = await self.engine.generate_dashboard_context()
-        # Montar o prompt final
         full_prompt = f"{self.system_prompt}\n\n### CONTEXTO FINANCEIRO ATUAL ###\n{contexto_financeiro}"
-        # Chamar a IA
         raw_response = await self.provider.generate(full_prompt, user_query)
-        # Processar Intent
         final_response = await self._handle_actions(raw_response)
         return final_response
 
     async def _handle_actions(self, response_text: str) -> str:
         """Busca e executa blocos JSON delimitados por <<< >>>"""
+        # Nota: A lógica de parsing será o foco da próxima melhoria (Ação 3)
         pattern = r"<<<(.*?)>>>"
         match = re.search(pattern, response_text, re.DOTALL)
         if match:
@@ -52,7 +29,6 @@ class AIController:
                 json_str = match.group(1)
                 data = json.loads(json_str)
                 clean_text = response_text.replace(match.group(0), "").strip()
-                # Executa a ação no Engine
                 if data.get("action") == "transaction":
                     novo_saldo = await self.engine.add_new_transaction(
                         description=data.get("desc"),
