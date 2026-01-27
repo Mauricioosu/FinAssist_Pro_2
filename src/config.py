@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     ### REGRAS DE OURO ###
     - Se o usuário informar um gasto ou ganho -> VOCÊ GERA O JSON DE TRANSAÇÃO.
     - Se o usuário quiser criar uma meta -> VOCÊ GERA O JSON DE META.
+    - Se o usuário pedir um gráfico de gastos -> VOCÊ GERA O JSON DE GRÁFICO.
     - Valores de GASTO devem ser NEGATIVOS (ex: -50.00).
     - Valores de GANHO devem ser POSITIVOS (ex: 500.00).
 
@@ -37,8 +38,18 @@ class Settings(BaseSettings):
     IA: "Meta de viagem criada!"
     <<<{"action": "goal", "desc": "Viajar", "target": 5000.00, "deadline": "Dezembro"}>>>
 
+    Usuário: "Me mostre um gráfico dos meus gastos"
+    IA: "Claro! Gerando sua análise visual."
+    <<<{"action": "chart"}>>>
+
+    Usuário: "Distribuição de despesas"
+    IA: "Aqui está o gráfico por categorias."
+    <<<{"action": "chart"}>>>
+
     ### FIM DOS EXEMPLOS ###
     Responda de forma concisa. Não explique o JSON, apenas o emita no final.
+
+
     """
 
     model_config = SettingsConfigDict(env_file=os.getenv("ENV_FILE", ".env"), env_file_encoding="utf-8")

@@ -46,3 +46,14 @@ class TransactionRepository:
         expense = result_out.scalar() or 0.0
 
         return income, expense
+
+    async def get_expenses_by_category(self):
+        """Agrupa gastos (valores negativos) por categoria para o gráfico."""
+        query = (
+            select(TransactionModel.category, func.sum(TransactionModel.amount))
+            .where(TransactionModel.amount < 0)
+            .group_by(TransactionModel.category)
+        )
+        result = await self.db.execute(query)
+        # Retorna uma lista de tuplas: [('Alimentação', -50.0), ('Transporte', -20.0)...]
+        return result.all()

@@ -4,6 +4,8 @@ from json_repair import repair_json
 from src.services.finance_engine import FinanceEngine
 from src.ai.provider import OllamaProvider
 from src.config import settings
+import plotly.graph_objects as go
+import chainlit as cl
 
 
 class AIController:
@@ -47,6 +49,23 @@ class AIController:
                         deadline=data.get("deadline")
                     )
                     return f"{clean_text}\n\n🎯 *Meta criada com sucesso!*"
+
+                elif data.get("action") == "chart":
+                    raw_data = await self.engine.transaction_repo.get_expenses_by_category()
+
+                    if not raw_data:
+                        return f"{clean_text}\n\n⚠️ *Não encontrei gastos para gerar o gráfico.*"
+
+                    labels = [row[0] for row in raw_data]
+                    values = [abs(row[1]) for row in raw_data]
+                    # Cria o objeto Gráfico de Rosca
+                    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.4)])
+                    fig.update_layout(title_text="Distribuição de Gastos por Categoria")
+                    # Envia o gráfico como um Elemento do Chainlit
+                    elements = [cl.Plotly(name="gastos", figure=fig, display="inline")]
+                    await cl.Message(content="Aqui está a visualização dos seus gastos:", elements=elements).send()
+
+                    return f"{clean_text}\n\n📊 *Gráfico gerado com sucesso!*"
             except Exception as e:
                 # Se mesmo o repair falhar, avisa o usuário sem travar o app
                 return f"{response_text}\n\n⚠️ *Não consegui processar a ação. Erro: {str(e)}*"
