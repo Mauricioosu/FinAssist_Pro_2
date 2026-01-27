@@ -21,27 +21,29 @@ class FinanceEngine:
 
     async def generate_dashboard_context(self) -> str:
         """
-        Gera um relatório de texto pronto para ser injetado no Prompt da IA.
-        Isso evita que a IA tenha que ler JSONs complexos.
+        Gera relatório com Saldo, Resumo (Entradas/Saídas), Extrato e Metas.
         """
-        # Busca dados em paralelo
+        # Busca dados
         balance = await self.transaction_repo.get_balance()
-        recent_tx = await self.transaction_repo.get_recent(limit=5)
+        income, expenses = await self.transaction_repo.get_totals()
+        recent_tx = await self.transaction_repo.get_recent(limit=15)
         goals = await self.goal_repo.get_active_goals()
-
-        # Monta o texto do Contexto
+        # Monta o texto
         text_lines = []
-        text_lines.append(f"💰 SALDO ATUAL: R$ {balance:.2f}")
-        text_lines.append("\n📉 ÚLTIMAS MOVIMENTAÇÕES:")
+        text_lines.append("📊 **RESUMO FINANCEIRO**")
+        text_lines.append(f"💰 SALDO ATUAL:   R$ {balance:.2f}")
+        text_lines.append(f"📈 TOTAL GANHO:   R$ {income:.2f}")
+        text_lines.append(f"📉 TOTAL GASTO:   R$ {expenses:.2f}")
+        text_lines.append("\n📝 **EXTRATO RECENTE:**")
+
         if not recent_tx:
             text_lines.append("- Nenhuma transação recente.")
         for tx in recent_tx:
             sinal = "+" if tx.amount >= 0 else ""
-            # Formata a data para dia/mês
             data_fmt = tx.created_at.strftime('%d/%m')
             text_lines.append(f"- {data_fmt}: {tx.description} ({sinal}R$ {tx.amount:.2f}) [{tx.category}]")
 
-        text_lines.append("\n🎯 METAS ATIVAS:")
+        text_lines.append("\n🎯 **METAS ATIVAS:**")
         if not goals:
             text_lines.append("- Nenhuma meta definida.")
         for g in goals:

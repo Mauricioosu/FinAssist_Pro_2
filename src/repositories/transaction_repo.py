@@ -32,3 +32,17 @@ class TransactionRepository:
         result = await self.db.execute(query)
         balance = result.scalar()
         return balance if balance else 0.0
+
+    async def get_totals(self):
+        """Retorna tupla (Total Ganhos, Total Gastos)"""
+        # Soma Ganhos (> 0)
+        query_in = select(func.sum(TransactionModel.amount)).where(TransactionModel.amount > 0)
+        result_in = await self.db.execute(query_in)
+        income = result_in.scalar() or 0.0
+
+        # Soma Gastos (< 0)
+        query_out = select(func.sum(TransactionModel.amount)).where(TransactionModel.amount < 0)
+        result_out = await self.db.execute(query_out)
+        expense = result_out.scalar() or 0.0
+
+        return income, expense
