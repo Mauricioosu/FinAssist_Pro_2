@@ -16,7 +16,7 @@ class AIController:
 
     async def process_query(self, user_query: str) -> str:
         contexto_financeiro = await self.engine.generate_dashboard_context()
-        full_prompt = f"{self.system_prompt}\n\n### CONTEXTO FINANCEIRO ATUAL ###\n{contexto_financeiro}"        
+        full_prompt = f"{self.system_prompt}\n\n### CONTEXTO FINANCEIRO ATUAL ###\n{contexto_financeiro}"
         raw_response = await self.provider.generate(full_prompt, user_query)
         final_response = await self._handle_actions(raw_response)
         return final_response
@@ -66,6 +66,31 @@ class AIController:
                     await cl.Message(content="Aqui está a visualização dos seus gastos:", elements=elements).send()
 
                     return f"{clean_text}\n\n📊 *Gráfico gerado com sucesso!*"
+
+                elif data.get("action") == "report":
+                    mes = int(data.get("month"))
+                    ano = int(data.get("year"))
+                    transactions = await self.engine.transaction_repo.get_monthly_transactions(mes, ano)
+                    if not transactions:
+                        return f"{clean_text}\n\n⚠️ *Não encontrei transações em {mes}/{ano}.*"
+
+                    # Calcula totais na memória (rápido e simples)
+                    ganhos = sum(t.amount for t in transactions if t.amount > 0)
+                    gastos = sum(t.amount for t in transactions if t.amount < 0)
+                    saldo_periodo = ganhos + gastos
+
+                    # Monta a resposta formatada
+                    report = [f"📅 **Relatório de {mes}/{ano}**\n"]
+                    report.append(f"🟢 Entradas: R$ {ganhos:.2f}")
+                    report.append(f"🔴 Saídas:   R$ {gastos:.2f}")
+                    report.append(f"💰 Resultado: R$ {saldo_periodo:.2f}\n")
+                    report.append("**Detalhamento:**")
+                    for t in transactions:
+                        sinal = "+" if t.amount >= 0 else ""
+                        dt = t.created_at.strftime('%d/%m')
+                        report.append(f"- {dt}: {t.description} ({sinal}R$ {t.amount:.2f})")
+
+                    return f"{clean_text}\n\n" + "\n".join(report)
             except Exception as e:
                 # Se mesmo o repair falhar, avisa o usuário sem travar o app
                 return f"{response_text}\n\n⚠️ *Não consegui processar a ação. Erro: {str(e)}*"

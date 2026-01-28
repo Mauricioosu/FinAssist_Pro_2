@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import func
+from sqlalchemy import func, extract
 from src.models.transaction import TransactionModel
 
 
@@ -20,7 +20,7 @@ class TransactionRepository:
         await self.db.refresh(transaction)
         return transaction
 
-    async def get_recent(self, limit: int = 10):
+    async def get_recent(self, limit: int = 15):
         """Busca as últimas X transações para contexto da IA."""
         query = select(TransactionModel).order_by(TransactionModel.id.desc()).limit(limit)
         result = await self.db.execute(query)
@@ -34,7 +34,10 @@ class TransactionRepository:
         return balance if balance else 0.0
 
     async def get_totals(self):
-        """Retorna tupla (Total Ganhos, Total Gastos)"""
+        """
+        Retorna tupla (Total Ganhos, Total Gastos).
+        Usado no resumo do Dashboard.
+        """
         # Soma Ganhos (> 0)
         query_in = select(func.sum(TransactionModel.amount)).where(TransactionModel.amount > 0)
         result_in = await self.db.execute(query_in)
@@ -48,12 +51,28 @@ class TransactionRepository:
         return income, expense
 
     async def get_expenses_by_category(self):
-        """Agrupa gastos (valores negativos) por categoria para o gráfico."""
+        """
+        [OPÇÃO A] Agrupa gastos por categoria para o gráfico.
+        """
         query = (
             select(TransactionModel.category, func.sum(TransactionModel.amount))
-            .where(TransactionModel.amount < 0)
+            .where(TransactionModel.amount < 0)  # Apenas gastos
             .group_by(TransactionModel.category)
         )
         result = await self.db.execute(query)
-        # Retorna uma lista de tuplas: [('Alimentação', -50.0), ('Transporte', -20.0)...]
         return result.all()
+
+    async def get_monthly_transactions(self, month: int, year: int):
+        """
+        [OPÇÃO B] Busca todas as transações de um mês/ano específico.
+        """
+        query = (
+            select(TransactionModel)
+            .where(
+                extract('month', TransactionModel.created_at) == month,
+                extract('year', TransactionModel.created_at) == year
+            )
+            .order_by(TransactionModel.created_at.asc())
+        )
+        result = await self.db.execute(query)
+        return result.scalars().all()
