@@ -30,6 +30,7 @@ ENV/
 data/
 *.db
 *.sqlite3
+.files/
 
 # ARQUIVOS DE LOG E CONFIGURAÇÃO LOCAL
 *.log
