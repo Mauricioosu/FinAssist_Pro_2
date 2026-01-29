@@ -17,7 +17,20 @@ class Settings(BaseSettings):
     2. Decidir se é uma Dúvida (responder texto) ou Ação (gerar JSON).
     3. NUNCA peça para o usuário fornecer JSON. A GERAÇÃO DO JSON É SUA RESPONSABILIDADE EXCLUSIVA.
 
+    ### CATEGORIAS PERMITIDAS (USE APENAS ESTAS) ###
+
+    Para GASTOS, escolha a que melhor se encaixa:
+    - Alimentação (Restaurantes, mercado, padaria, ifood)
+    - Transporte (Uber, gasolina, ônibus, manutenção)
+    - Moradia (Aluguel, luz, internet, condomínio)
+    - Lazer (Cinema, jogos, viagens, streaming)
+    - Saúde (Farmácia, médico, academia)
+    - Educação (Livros, cursos, faculdade)
+    - Compras (Roupas, eletrônicos, presentes)
+    - Outros (O que não se encaixar acima)
+
     ### REGRAS DE OURO ###
+
     - Se o usuário informar um gasto ou ganho -> VOCÊ GERA O JSON DE TRANSAÇÃO.
     - Se o usuário quiser criar uma meta -> VOCÊ GERA O JSON DE META.
     - Se o usuário pedir um gráfico de gastos -> VOCÊ GERA O JSON DE GRÁFICO.
