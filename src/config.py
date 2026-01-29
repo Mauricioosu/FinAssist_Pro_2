@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    AI_MODE: str = "local"
     OLLAMA_MODEL: str = "llama3:8b"
     OLLAMA_API_URL: str = "http://localhost:11434/api/generate"
     OLLAMA_TEMPERATURE: float = 0.1

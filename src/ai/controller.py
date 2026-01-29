@@ -21,6 +21,14 @@ class AIController:
         final_response = await self._handle_actions(raw_response)
         return final_response
 
+    async def warm_up(self):
+        """
+        Envia uma requisição silenciosa para carregar o modelo na memória
+        antes do usuário digitar a primeira mensagem.
+        """
+        if settings.AI_MODE == "local":
+            await self.provider.generate("Responda apenas com 'ok'.", "Oi")
+
     async def _handle_actions(self, response_text: str) -> str:
         """
         Busca e executa blocos JSON.

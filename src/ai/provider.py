@@ -2,15 +2,15 @@ import httpx
 from src.config import settings
 
 
+http_client = httpx.AsyncClient(timeout=60.0)
+
+
 class OllamaProvider:
     def __init__(self):
         self.model = settings.OLLAMA_MODEL
         self.api_url = settings.OLLAMA_API_URL
 
     async def generate(self, system_prompt: str, user_query: str) -> str:
-        """
-        Envia o prompt para o modelo local e retorna o texto puro.
-        """
         prompt_completo = f"{system_prompt}\n\nUSER: {user_query}"
         payload = {
             "model": self.model,
@@ -18,17 +18,16 @@ class OllamaProvider:
             "stream": False,
             "options": {
                 "temperature": settings.OLLAMA_TEMPERATURE,
-                "num_ctx": settings.OLLAMA_CONTEXT_WINDOW
-            }
+                "num_ctx": 4096
+            },
+            "keep_alive": "5m"
         }
 
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(self.api_url, json=payload, timeout=60.0)
-                if response.status_code == 200:
-                    data = response.json()
-                    return data.get("response", "")
-                else:
-                    return f"Erro: Ollama retornou código {response.status_code}"
-            except Exception as e:
-                return f"Erro de conexão: O Ollama está rodando? Detalhes: {e}"
+        try:
+            response = await http_client.post(self.api_url, json=payload)
+
+            if response.status_code == 200:
+                return response.json().get("response", "")
+            return f"Erro Ollama: {response.status_code}"
+        except Exception as e:
+            return f"Erro de conexão local: {e}"

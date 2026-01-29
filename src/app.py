@@ -46,10 +46,16 @@ async def save_profile_name(nome):
 
 @cl.on_chat_start
 async def start():
-    # Inicialização do banco de dados
     await init_db()
-    # Carregar ou solicitar o nome do usuário
+    await cl.Message(content="👋 **FinAssist Pro 2** iniciando...").send()
+
     nome_usuario = await load_profile_name()
+
+    async for session in get_db():
+        controller = AIController(session)
+        await controller.warm_up()
+        break
+
     if not nome_usuario:
         await cl.Message(content="👋 Olá! Bem-vindo ao **FinAssist Pro 2**.\nSou seu mentor financeiro pessoal e 100% offline.").send()
         res = await cl.AskUserMessage(content="Como você gostaria de ser chamado?", timeout=60).send()
@@ -60,8 +66,7 @@ async def start():
     else:
         await cl.Message(content=f"👋 Bem-vindo de volta, **{nome_usuario}**!").send()
 
-    # Mensagem inicial
-    await cl.Message(content="O sistema está pronto. Você pode me dizer seus gastos, perguntar saldo ou criar metas.\n\n*Ex: 'Gastei 50 reais na padaria' ou 'Qual meu saldo?'*").send()
+    await cl.Message(content=f"O sistema está pronto para uso! 🚀\n\n*Pode falar: 'Gastei 50 no Uber' ou 'Relatório de Janeiro'*").send()
 
 
 @cl.on_message
