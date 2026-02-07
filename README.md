@@ -6,14 +6,15 @@ Bem-vindo ao **FinAssist Pro 2**, a evolução definitiva do projeto FinAssist. 
 
 ---
 
-## O que há de novo na v2?
+## Funcionalidades Principais
 
-Diferente da versão anterior, o FinAssist Pro 2 foca em privacidade total e performance assíncrona:
+* Multiplataforma: Interface Web via Chainlit e aplicação nativa Desktop para Windows via Flet.
 
-* **Arquitetura "Offline-First":** Seus dados financeiros nunca saem da sua máquina. A IA roda localmente.
-* **Interface via Chat (Chainlit):** Interaja com suas finanças como se estivesse conversando com um mentor no WhatsApp/Telegram.
-* **Ações Autônomas:** A IA não apenas responde, ela executa ações (registra gastos, cria metas) diretamente no banco de dados via *Function Calling* simulado.
-* **Stack Robusta:** Python 3.12+, SQLAlchemy (Async), Pydantic e Llama 3.
+* Processamento de Linguagem Natural: Registro inteligente de transações (ex: "Gastei 50 reais na padaria").
+
+* Privacidade Offline: Integração com Ollama (Llama 3) rodando 100% local.
+
+* Gestão Financeira: Acompanhamento de saldo em tempo real e progresso de metas ativas.
 
 ---
 
