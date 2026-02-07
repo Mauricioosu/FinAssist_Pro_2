@@ -23,7 +23,7 @@ Bem-vindo ao **FinAssist Pro 2**, a evolução definitiva do projeto FinAssist. 
 O projeto segue padrões rígidos de Engenharia de Software:
 
 * **Linguagem:** Python 3.12+
-* **Interface:** [Chainlit](https://docs.chainlit.io) (Frontend conversacional)
+* **Interface:** Web: Chainlit / Desktop: Flet.
 * **Banco de Dados:** SQLite (via `aiosqlite` + SQLAlchemy 2.0 Async)
 * **IA / LLM:** [Ollama](https://ollama.com/) (Localhost)
 * **Modelo Padrão:** `llama3:8b` (Configurado com temperatura 0.1 para precisão matemática)
